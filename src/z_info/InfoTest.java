@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -21,7 +22,7 @@ public class InfoTest {
 	JFrame f;
 	JTextField tfName, tfId, tfTel, tfSex, tfAge, tfHome;
 	JTextArea ta;
-	JButton bAdd, bShow, bSearch, bDelete, bCancel, bExit;
+	JButton bAdd, bShow, bSearch, bDelete, bModify, bExit;
 	
 	Database db;
 	
@@ -34,7 +35,7 @@ public class InfoTest {
 		bShow = new JButton("Show");
 		bSearch = new JButton("Search");
 		bDelete = new JButton("Delete");
-		bCancel = new JButton("Cancel");
+		bModify = new JButton("Modify");
 		bExit = new JButton("Exit");
 		ta = new JTextArea();		
 		
@@ -68,7 +69,7 @@ public class InfoTest {
 	         p.add(bShow);
 	         p.add(bSearch);
 	         p.add(bDelete);
-	         p.add(bCancel);
+	         p.add(bModify);
 	         p.add(bExit);
 	      f.add(p, BorderLayout.SOUTH);
 
@@ -91,7 +92,7 @@ public class InfoTest {
 	        f.add(pwest, BorderLayout.WEST);
 		
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.setBounds(100,200,800,350);
+		f.setBounds(100,200,1000,350);
 		f.setVisible(true);
 	}
 	
@@ -125,28 +126,71 @@ public class InfoTest {
 				db.insert(vo);
 				//값을 입력 받은후 텍스트필드를 null로 변경
 				clearTextField ();
+				selectAll();
 				
 				}catch(Exception ex) {
 					JOptionPane.showMessageDialog(null, "입력실패 : " + ex.getMessage());
 				}
 			}
 		});
-		
+
+		// 'Modify' 버튼이 눌렸을 때
+		bModify.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// 각각의 텍스트필드에서 사용자의 입력값을 얻어오기
+				String name = tfName.getText();
+				String id = tfId.getText();
+				String tel = tfTel.getText();
+				String sex = tfSex.getText();
+				int age = Integer.parseInt(tfAge.getText());
+				String home = tfHome.getText();
+
+				// 사용자 입력값들을 하나의 클래스로 만들기 InfoVO 멤버로 지정
+				InfoVO vo = new InfoVO();
+				vo.setName(name);
+				vo.setId(id);
+				vo.setTel(tel);
+				vo.setSex(sex);
+				vo.setAge(age);
+				vo.setHome(home);
+
+				//InfoVO vo = new InfoVO(name, id, tel, sex, age, home);
+
+				try {
+					db.modify(vo);
+
+					//값을 입력 받은후 텍스트필드를 null로 변경
+					clearTextField ();
+					selectAll();
+
+				}catch(Exception ex) {
+					JOptionPane.showMessageDialog(null, "수정실패 : " + ex.getMessage());  // 상황에 맞게 catch 문구에다가 수정하기
+				}
+			}
+		});
+
 		//전화번호 텍스트필드에서 엔터쳤을 때
 		tfTel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sarchByTel();
+				searchByTel();
+			}
+		});
+
+		// 주민번호 텍스트필드에서 엔터 쳤을 때
+		tfId.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				searchById();
 			}
 		});
 		
 		// 'Search' 버튼이 눌렸을 때
-		
 		bSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sarchByTel();
+				searchByTel();
 			}
 		});
-		
+
+		// 'delete' 버튼이 눌렸을 때
 		bDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String tel = tfTel.getText();
@@ -163,9 +207,36 @@ public class InfoTest {
 				}
 			}
 		});
+
+		// 'show' 버튼이 눌렸을 때
+		bShow.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				selectAll();
+			}
+		});
 		
 	} // end of eventProc()
-	
+
+	// 입력값 텍스트 설정
+	void selectAll() {
+		try {
+			ta.setText("-------------------검색결과------------------- \n\n");
+			ArrayList<InfoVO> result = db.selectAll();
+			for ( InfoVO vo: result) {
+				ta.append(vo.toString());
+//				ta.append("이름 :" + vo.getName() + ", ");
+//				ta.append("주민번호 :" + vo.getId() + ", ");
+//				ta.append("번호 :" + vo.getTel() + ", ");
+//				ta.append("성별 :" + vo.getSex() + ", ");
+//				ta.append("나이 :" + vo.getAge() + ", ");
+//				ta.append("집 :" + vo.getHome() + "\n");
+			}
+		} catch (Exception ex) {
+			System.out.println("전체 검색 실패: " + ex.getMessage());
+		}
+	}
+
+	// 텍스트필드 지우기
 	void clearTextField () {
 		tfName.setText(null);
 		tfId.setText(null);
@@ -175,7 +246,8 @@ public class InfoTest {
 		tfHome.setText(null);
 	}
 
-	void sarchByTel() { // enter , bSearch 기능이 중복이면 하나의 함수로 만들기
+	//search 전화번호
+	void searchByTel() { // enter , bSearch 기능이 중복이면 하나의 함수로 만들기
 		String tel = tfTel.getText();
 		try {
 			InfoVO result = db.searchByTel(tel);
@@ -191,7 +263,26 @@ public class InfoTest {
 			System.out.println("검색 실패 : " + ex.getMessage());
 		}
 	}
-	
+
+	// search ID
+	void searchById() { // enter , bSearch 기능이 중복이면 하나의 함수로 만들기
+		String id = tfId.getText();
+		try {
+			InfoVO result = db.searchById(id);
+			tfName.setText(result.getName());
+			//나머지들
+			tfId.setText(result.getId());
+			tfTel.setText(result.getTel());
+			tfSex.setText(result.getSex());
+			tfAge.setText(String.valueOf(result.getAge()));
+			tfHome.setText(result.getHome());
+
+		}catch(Exception ex) {
+			System.out.println("검색 실패 : " + ex.getMessage());
+		}
+	}
+
+	//화면 표시 기능
 	public static void main(String[] args) {
 		InfoTest info = new InfoTest();
 		info.addLayout();

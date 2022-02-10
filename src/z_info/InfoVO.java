@@ -12,9 +12,8 @@ public class InfoVO {
 	
 	
 
-	//인자 가지고 없는 생성자 함수
+	//인자 없는 생성자 함수
 	public InfoVO() {
-		
 
 	}
 	
@@ -29,6 +28,9 @@ public class InfoVO {
 		this.home = home;
 	}
 
+	public String toString() {
+		return name + "\t" + id + "\t" + tel + "\t" + sex + "\t" + age + "\t" + home + "\n";
+	}
 
 	public String getName() {
 		return name;
