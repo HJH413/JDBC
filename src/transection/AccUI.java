@@ -21,6 +21,8 @@ public class AccUI implements ActionListener
 	JLabel l_sendCust,  l_gainMoney;
 	JButton b_diaConfirm;
 
+	AccLogic logic;
+
 	//===================================================
 	// 전역 변수의 객체 생성
 	public AccUI(){
@@ -37,6 +39,13 @@ public class AccUI implements ActionListener
 		l_sendCust		= new JLabel();
 		l_gainMoney		= new JLabel();
 		b_diaConfirm	= new JButton(" 정상처리되었습니다!!! ");
+
+		try {
+			logic = new AccLogic();
+		} catch (Exception e) {
+			System.out.println("드라이버 로딩 실패 : " + e.getMessage());
+			e.printStackTrace();
+		}
 
 	}
 
@@ -118,14 +127,20 @@ public class AccUI implements ActionListener
 			try{
 			////////////////////////////////////////////////////////
 			// 1. 화면에서 입력값 얻어오기
-			// 2. Business Logic 객체 생성 ( ex. AccLogic )
-			// 3. BL객체에서 계좌 이체하는 함수 호출 ( ex. moveAccount() )
+			// 2. BL객체에서 계좌 이체하는 함수 호출 ( ex. moveAccount() )
 			//		- 1번의 입력값을 인자로 넘김
 			//		- 호출 후 넘겨받는 리턴값으로는 0이면 정상처리이고 
 			//			-1이면 잘못된 경우이므로 메세지박스 출력
+			String sNum = tf_sendAccNum.getText();
+			String rNum = tf_recvAccNum.getText();
+			int money = Integer.parseInt(tf_moveMoney.getText());
 
-
-
+			int reuslt = logic.moveAccount(sNum, rNum, money);
+			if (reuslt == 0) {
+				JOptionPane.showMessageDialog(null, "이체 성공");
+			} else if (reuslt==-1) {
+				JOptionPane.showMessageDialog(null, "이체 실패");
+			}
 
 			/******************************************************
 			* 계좌 이체를 확인한 후에 결과를 다이알로그에 출력
