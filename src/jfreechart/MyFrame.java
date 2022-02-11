@@ -10,8 +10,8 @@ public class MyFrame extends JFrame {
 	// 우리가 만드는 화면 
 	MyFrame(){
 		 // *******************************************************
-		 ChartA demo = new ChartA();   		 // (1) 정해진 값으로 차트
-		 //ChartB demo = new ChartB();			 // (2) DB에서 가져온 값으로 차트 
+		 //ChartA demo = new ChartA();   		 // (1) 정해진 값으로 차트
+		 ChartB demo = new ChartB();			 // (2) DB에서 가져온 값으로 차트
          JFreeChart chart = demo.getChart();     
          ChartPanel chartPanel=new ChartPanel(chart); 
          				// JFreeChart는 ChartPanel이나 ChartFrame에만 붙일 수 있다.
